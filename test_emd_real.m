@@ -4,14 +4,15 @@
 
 clear
 clc
-addpath /Users/Chin/Documents/Chin/Acads/Utils/
+addpath Utils
 addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/
 addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/emd_flow/
 
 % set parameters k, B, thrsh
 
-k = 50;
-B = 2500;
+% k = 15, B = 400 for a test case that breaks monotonicity?
+k = 15;
+B = 400;
 shft = 5;
 thrsh = 0.5*shft;
 

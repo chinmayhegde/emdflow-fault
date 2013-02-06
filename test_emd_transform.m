@@ -2,7 +2,7 @@
 
 clear
 clc
-addpath /Users/Chin/Documents/Chin/Acads/Utils/
+addpath Utils
 addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/
 addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/emd_flow/
 

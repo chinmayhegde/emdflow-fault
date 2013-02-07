@@ -5,8 +5,7 @@
 clear
 clc
 addpath Utils
-addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/
-addpath /Users/Chin/Documents/Chin/Acads/modelcs/modelcs_debug/EMD/emd_flow/
+addpath emd_flow
 
 % set parameters k, B, thrsh
 
@@ -31,7 +30,7 @@ scatter(faults2(:,1)-50,faults2(:,3),20,'filled')
 %return
 
 
-mags = Zfaultn.^2;
+mags = double(Zfaultn.^2);
 supp = emd_flow(mags,k,B,true);
 supp = double(supp);
 

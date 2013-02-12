@@ -4,6 +4,7 @@
 #include <boost/program_options.hpp>
 
 #include "emd_flow.h"
+#include "emd_flow_network_factory.h"
 
 using namespace std;
 namespace po = boost::program_options;
@@ -26,15 +27,30 @@ void output_function(const char* s) {
 
 int main(int argc, char** argv)
 {
+  string alg_name;
+
   po::options_description desc("Allowed options");
   desc.add_options()
       ("matrix_output", po::value<string>(), "File for binary output matrix")
-      ("square_amplitudes", "Square all input amplitudes");
+      ("square_amplitudes", "Square all input amplitudes")
+      ("algorithm", po::value<string>(&alg_name)->default_value(
+          "shortest-augmenting-path"), "Min-cost max-flow algorithm")
+      ("print_support", po::value<string>(), "Print support to stderr")
+      ("emd_interval", po::value<string>(), "Read both lower and upper EMD "
+          "bound from stdin");
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm); 
 
-  scanf("%d %d %d %d", &r, &c, &k, &emd_bound);
+  int emd_bound_low = 0;
+  int emd_bound_high = 0;
+
+  scanf("%d %d %d %d", &r, &c, &k, &emd_bound_low);
+  if (vm.count("emd_interval")) {
+    scanf("%d", &emd_bound_high);
+  } else {
+    emd_bound_high = emd_bound_low;
+  }
 
   a.resize(r);
   for (int ii = 0; ii < r; ++ii) {
@@ -54,23 +70,33 @@ int main(int argc, char** argv)
     }
   }
 
+  EMDFlowNetworkFactory::EMDFlowNetworkType alg_type =
+      EMDFlowNetworkFactory::parse_type(alg_name);
+
+  if (alg_type == EMDFlowNetworkFactory::kUnknownType) {
+    fprintf(stderr, "Unknown algorithm \"%s\", exiting.\n", alg_name.c_str());
+    return 0;
+  }
+
   
   int emd_cost = 0;
   double amp_sum = 0.0;
   double final_lambda = 0.0;
-  emd_flow(a, k, emd_bound, &result, &emd_cost, &amp_sum, &final_lambda,
-      output_function, true);
+  emd_flow(a, k, emd_bound_low, emd_bound_high, 0.1, 0.0001, &result, &emd_cost,
+      &amp_sum, &final_lambda, alg_type, output_function, true);
 
-  for (int jj = 0; jj < c; ++jj) {
-    fprintf(stderr, "col %d:\n", jj + 1);
-    for (int ii = 0; ii < r; ++ii) {
-      if (result[ii][jj]) {
-        fprintf(stderr, " row %d, amplitude %lf\n", ii + 1, a[ii][jj]);
+  if (vm.count("print_support")) {
+    for (int jj = 0; jj < c; ++jj) {
+      fprintf(stderr, "col %d:\n", jj + 1);
+      for (int ii = 0; ii < r; ++ii) {
+        if (result[ii][jj]) {
+          fprintf(stderr, " row %d, amplitude %f\n", ii + 1, a[ii][jj]);
+        }
       }
     }
   }
 
-  printf("%lf\n", amp_sum);
+  printf("%f\n", amp_sum);
 
   if (vm.count("matrix_output")) {
     string output_file_name = vm["matrix_output"].as<string>();

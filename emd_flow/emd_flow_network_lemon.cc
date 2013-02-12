@@ -1,4 +1,4 @@
-#include "emd_flow_network.h"
+#include "emd_flow_network_lemon.h"
 
 #include <cstdio>
 #include <cmath>
@@ -6,7 +6,8 @@
 using namespace std;
 using namespace lemon;
 
-EMDFlowNetwork::EMDFlowNetwork(
+template <typename MCMFAlgorithm>
+EMDFlowNetworkLemon::EMDFlowNetworkLemon(
     const vector<vector<double> >& amplitudes, int k)
       : k_(k), capacity_(g_), cost_(g_) {
 
@@ -79,36 +80,37 @@ EMDFlowNetwork::EMDFlowNetwork(
     }
   }
 
-  alg_ = new AlgType(g_);
+  alg_ = new MCMFAlgorithm(g_);
   alg_->upperMap(capacity_);
 
   set_sparsity(k);
 }
 
-EMDFlowNetwork::~EMDFlowNetwork() {
+EMDFlowNetworkLemon::~EMDFlowNetworkLemon() {
   delete alg_;
 }
 
-void EMDFlowNetwork::set_sparsity(int k) {
+void EMDFlowNetworkLemon::set_sparsity(int k) {
   k_ = k;
   alg_->stSupply(s_, t_, k_);
 }
 
-void EMDFlowNetwork::run_flow(double lambda) {
+void EMDFlowNetworkLemon::run_flow(double lambda) {
   apply_lambda(lambda);
   alg_->costMap(cost_);
   alg_->run();
 }
 
-int EMDFlowNetwork::get_EMD_used() {
+int EMDFlowNetworkLemon::get_EMD_used() {
   return extract_emd_cost();
 }
 
-double EMDFlowNetwork::get_supported_amplitude_sum() {
+double EMDFlowNetworkLemon::get_supported_amplitude_sum() {
   return extract_amp_sum();
 }
 
-void EMDFlowNetwork::get_support(std::vector<std::vector<bool> >* support) {
+void EMDFlowNetworkLemon::get_support(
+    std::vector<std::vector<bool> >* support) {
   support->resize(r_);
   for (int row = 0; row < r_; ++row) {
     (*support)[row].resize(c_);
@@ -118,7 +120,7 @@ void EMDFlowNetwork::get_support(std::vector<std::vector<bool> >* support) {
   }
 }
 
-void EMDFlowNetwork::apply_lambda(double lambda) {
+void EMDFlowNetworkLemon::apply_lambda(double lambda) {
   for (int row = 0; row < r_; ++row) {
     for (int col = 0; col < c_ - 1; ++col) {
       for (int dest = 0; dest < r_; ++dest) {
@@ -128,7 +130,7 @@ void EMDFlowNetwork::apply_lambda(double lambda) {
   }
 }
 
-int EMDFlowNetwork::extract_emd_cost() {
+int EMDFlowNetworkLemon::extract_emd_cost() {
   int emd_cost = 0;
   for (int row = 0; row < r_; ++row) {
     for (int col = 0; col < c_ - 1; ++col) {
@@ -146,7 +148,7 @@ int EMDFlowNetwork::extract_emd_cost() {
 
 }
 
-double EMDFlowNetwork::extract_amp_sum() {
+double EMDFlowNetworkLemon::extract_amp_sum() {
   double amp_sum = 0;
   for (int row = 0; row < r_; ++row) {
     for (int col = 0; col < c_; ++col) {
@@ -161,18 +163,18 @@ double EMDFlowNetwork::extract_amp_sum() {
   return amp_sum;
 }
 
-int EMDFlowNetwork::get_num_nodes() {
+int EMDFlowNetworkLemon::get_num_nodes() {
   return countNodes(g_);
 }
 
-int EMDFlowNetwork::get_num_edges() {
+int EMDFlowNetworkLemon::get_num_edges() {
   return countArcs(g_);
 }
 
-int EMDFlowNetwork::get_num_columns() {
+int EMDFlowNetworkLemon::get_num_columns() {
   return c_;
 }
 
-int EMDFlowNetwork::get_num_rows() {
+int EMDFlowNetworkLemon::get_num_rows() {
   return r_;
 }

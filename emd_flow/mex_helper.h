@@ -111,7 +111,7 @@ bool get_fields(const mxArray* struc, std::vector<std::string>* fields) {
   if (!mxIsStruct(struc)) {
     return false;
   }
-  size_t num_elems = mxGetNumberOfElements(struc);
+  size_t num_elems = mxGetNumberOfFields(struc);
   if (fields->size() != num_elems) {
     fields->resize(num_elems);
   }

@@ -1,7 +1,6 @@
 #include <vector>
 #include <string>
 #include <set>
-#include <sstream>
 
 #include <math.h>
 #include <matrix.h>
@@ -62,12 +61,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
     if (!get_fields(prhs[3], &options)) {
       mexErrMsgTxt("Cannot get fields from options argument.");
     }
+    mexPrintf("Got %u options\n", options.size());
     for (size_t ii = 0; ii < options.size(); ++ii) {
       if (known_options.find(options[ii]) == known_options.end()) {
-        ostringstream ss;
-        ss << "Unknown option \"" << options[ii].c_str() << "\"";
-        string msg = ss.str();
-        mexErrMsgTxt(msg.c_str());
+        const size_t tmp_size = 1000;
+        char tmp[tmp_size];
+        snprintf(tmp, tmp_size, "Unknown option \"%s\"\n", options[ii].c_str());
+        mexErrMsgTxt(tmp);
       }
     }
 

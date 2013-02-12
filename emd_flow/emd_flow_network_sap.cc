@@ -6,7 +6,6 @@
 #include <limits>
 #include <queue>
 #include <map>
-#include <sstream>
 
 using namespace std;
 
@@ -354,9 +353,11 @@ int EMDFlowNetworkSAP::get_num_rows() {
 }
 
 void EMDFlowNetworkSAP::get_performance_diagnostics(std::string* s) {
-  ostringstream ss;
-  ss << "Total inner iterations: " << total_inner_iterations << endl;
-  ss << "Checking inner iterations: " << checking_inner_iterations << endl;
-  ss << "Updating inner iterations: " << updating_inner_iterations << endl;
-  *s = ss.str();
+  const size_t tmp_size = 2000;
+  char tmp[tmp_size];
+  snprintf(tmp, tmp_size, "Total inner iterations: %lld\n"
+      "Checking inner iterations: %lld\nUpdating inner iterations: %lld\n",
+      total_inner_iterations, checking_inner_iterations,
+      updating_inner_iterations);
+  *s = string(tmp);
 }

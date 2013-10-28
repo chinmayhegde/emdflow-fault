@@ -9,32 +9,39 @@ addpath emd_flow
 
 % set parameters k, B, thrsh
 
-% k = 15, B = 400 for a test case that breaks monotonicity?
+load seismic_fault_real
+
 k = 15;
 B = 150;
 shft = 5;
+offset1 = 125; offset2 = 20;
+Zfaultn = a(21:95,126:200); Zfaultn = Zfaultn/max(abs(Zfaultn(:)));
+Zfaultn = double(Zfaultn);
 
-load seismic_fault_real
+% k = 15;
+% B = 150;
+% shft = 5;
+% offset1 = 125; offset2 = 125;
+% Zfaultn = a((offset2+1):250,(offset1+1):200); Zfaultn = Zfaultn/max(abs(Zfaultn(:)));
+% Zfaultn = double(Zfaultn);
 
-Zfaultn = a(21:95,126:end); Zfaultn = Zfaultn/max(abs(Zfaultn(:)));
-
-%Zfaultn = sign(Zfaultn).*abs(Zfaultn);
 
 figure(10), clf
 subplot(1,2,1), imagesc(Zfaultn), axis image %, caxis([-1 1])
 subplot(1,2,2), imagesc(Zfaultn), axis image %, caxis([-1 1])
 hold on
-scatter(faults2(:,1)-125,faults2(:,3)-20,50,[0 0 0],'filled')
+scatter(faults2(:,1)-offset1,faults2(:,3)-offset2,50,[0 0 0],'filled')
+
+%return
+opts.verbose = true;
+%
+mags = double(Zfaultn.^2);
+supp = emd_flow(mags,k,B,opts);
+supp = double(supp);
 
 %return
 
-%
-mags = double(Zfaultn.^2);
-supp = emd_flow(mags,k,B,true);
-supp = double(supp);
-
-
-thrshvec = 0:0.5:2.5;
+thrshvec = 1.5;
 
 for thrsh = thrshvec
 
@@ -50,8 +57,20 @@ v1 = diag(i(i1,i2));
 v2 = diag(j(i1,i2));
 [v1sort, idx] = sort(v1,'descend');
 v2sort = v2(idx);
-vx = [v1sort(1:end-1)'; v1sort(2:end)'];
-vy = [v2sort(1:end-1)'; v2sort(2:end)'];
+
+% some basic outlier rejection
+% if there's a solitary marked point somewhere, 
+% discard it
+
+X = [v1sort v2sort]';
+D = L2_distance(X,X);
+D = D + max(D(:))*diag(ones(length(D),1));
+[Dsort,idx] = min(D,[],2);
+idxoutlier = find(Dsort > 2*median(Dsort));
+idxkeep = setdiff(1:length(idx),idxoutlier);
+v1sort_keep = v1sort(idxkeep);
+v2sort_keep = v2sort(idxkeep);
+
 figure(2), clf, 
 subplot(1,3,1),
 imagesc(Zfaultn), axis image
@@ -60,13 +79,13 @@ rmaxis
 subplot(1,3,2),
 imagesc(Zfaultn), axis image
 hold on
-scatter(faults2(:,1)-125,faults2(:,3)-25,50,[0 0 0],'filled')
+scatter(faults2(:,1)-offset1,faults2(:,3)-offset2,50,[0 0 0],'filled')
 axisfortex('','Human labels','')
 rmaxis
 subplot(1,3,3),
 imagesc(Zfaultn), axis image
 hold on
-scatter(v2sort,v1sort,60,'k','filled')
+scatter(v2sort_keep,v1sort_keep,50,'kd','filled')
 axisfortex('','Automatic','')
 rmaxis
 

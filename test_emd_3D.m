@@ -4,7 +4,7 @@
 %clear
 clc
 addpath Utils
-addpath emd_flow
+addpath emd_flow-master/
 
 % set parameters k, B, thrsh
 
@@ -16,6 +16,8 @@ idx = 31:70;
 
 human_faults = [];
 auto_faults = [];
+
+opts.outdegree_vertical_distance = 10;
 
 for kk=idx
 
@@ -34,7 +36,7 @@ supp = double(supp);
 
 %return
 thrshvec = 1.5;
-medfact = 2;
+medfact = 1.75;
 
 for thrsh = thrshvec
 
@@ -138,7 +140,7 @@ figure(30), clf
 %subplot(1,2,1)
 scatter3(human_faults(:,3),(human_faults(:,1)),human_faults(:,2),25,'fill')
 %axis([0 76 0 76 0 76])
-view([-30 30])
+view([-45 30])
 xlim([26 75]); ylim([0 76]); zlim([0 76]);
 axis square
 box on
@@ -146,8 +148,43 @@ axisfortex('Human Labels','X','Y')
 %subplot(1,2,2)
 figure(31), clf
 scatter3(auto_faults(:,3),(auto_faults(:,1)),auto_faults(:,2),25,'fill')
-view([-30 30])
+view([-45 30])
 xlim([26 75]); ylim([0 76]); zlim([0 76]);
 axis square
 box on
 axisfortex('Auto Labels','X','Y')
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% plane fitting
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+human_faults_aug = [human_faults ones(size(human_faults,1),1)];
+[u,s,v] = svd(human_faults_aug,'econ');
+P = v(:,4);
+pos = random('unid',75,[10000 2]);
+Z = (-1/P(3))*(pos*P(1:2) + P(4));
+pos3 = [pos Z];
+figure(32), clf 
+scatter3(pos3(:,3),(pos3(:,1)),pos3(:,2),25,'fill')
+view([-45 30])
+xlim([26 75]); ylim([0 76]); zlim([0 76]);
+axis square
+box on
+axisfortex('Plane Fit (Human)','X','Y')
+
+
+auto_faults_aug = [auto_faults ones(size(auto_faults,1),1)];
+[u,s,v] = svd(auto_faults_aug,'econ');
+P = v(:,4);
+pos = random('unid',75,[10000 2]);
+Z = (-1/P(3))*(pos*P(1:2) + P(4));
+pos3 = [pos Z];
+figure(33), clf 
+scatter3(pos3(:,3),(pos3(:,1)),pos3(:,2),25,'fill')
+view([-45 30])
+xlim([26 75]); ylim([0 76]); zlim([0 76]);
+axis square
+box on
+axisfortex('Plane Fit (Auto)','X','Y')

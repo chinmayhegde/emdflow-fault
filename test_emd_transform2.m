@@ -1,15 +1,15 @@
-% chin jan 29 2013
+% chin oct 28 2013
 
 clear
 clc
 addpath Utils
 addpath emd_flow-master/
 
-sg = 0.4;
+sg = 0.5;
 n = 50;
 w = 25;
 shft = 3;
-theta = 77;
+theta = 83;
 
 flg = 0;
 
@@ -32,6 +32,7 @@ end
 mags = Zfaultn.^2;
 opts.verbose = true;
 opts.lambda_high = 2;
+opts.outdegree_vertical_distance = shft;
 supp = emd_flow(mags,k,[0.95*B 1.05*B],opts);
 supp = double(supp);
 % 
@@ -56,22 +57,42 @@ v2sort = v2(idx);
 vx = [v1sort(1:end-1)'; v1sort(2:end)'];
 vy = [v2sort(1:end-1)'; v2sort(2:end)'];
 
+% figure(2), clf, 
+% subplot(2,2,1),
+% imagesc(Zfault), axis image
+% axisfortex('','Original','')
+% rmaxis
+% subplot(2,2,2),
+% imagesc(Zfaultn), axis image
+% axisfortex('','Noisy input','')
+% rmaxis
+% subplot(2,2,3),
+% imagesc(supp), axis image
+% axisfortex('','Noisy input','')
+% rmaxis
+% subplot(2,2,4),
+% imagesc(Zfaultn), axis image
+% hold on
+% plot(vy,vx,'k--','LineWidth',4)
+% axisfortex('','Labeled Fault','')
+% rmaxis
+
 figure(2), clf, 
-subplot(2,2,1),
+subplot(1,3,1),
 imagesc(Zfault), axis image
 axisfortex('','Original','')
 rmaxis
-subplot(2,2,2),
+subplot(1,3,2),
 imagesc(Zfaultn), axis image
 axisfortex('','Noisy input','')
 rmaxis
-subplot(2,2,3),
-imagesc(supp), axis image
-axisfortex('','Noisy input','')
-rmaxis
-subplot(2,2,4),
+% subplot(2,2,3),
+% imagesc(supp), axis image
+% axisfortex('','Noisy input','')
+% rmaxis
+subplot(1,3,3),
 imagesc(Zfaultn), axis image
 hold on
-plot(vy,vx,'k--','LineWidth',4)
+plot(vy,vx,'k--d','LineWidth',4,'MarkerSize',3)
 axisfortex('','Labeled Fault','')
 rmaxis

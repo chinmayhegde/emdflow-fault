@@ -12,7 +12,7 @@ load faults_image
 k = 15;
 B = 150;
 offset1 = 125; offset2 = 20;
-idx = 31:70;
+idx = 47;
 
 human_faults = [];
 auto_faults = [];
@@ -166,6 +166,8 @@ P = v(:,4);
 pos = random('unid',75,[10000 2]);
 Z = (-1/P(3))*(pos*P(1:2) + P(4));
 pos3 = [pos Z];
+pos3 = pos3(find((pos3(:,2)>25).*(pos3(:,2)<76).*(pos3(:,3)>0).*(pos3(:,3)<76)),:);
+
 figure(32), clf 
 scatter3(pos3(:,3),(pos3(:,1)),pos3(:,2),25,'fill')
 view([-45 30])
@@ -181,6 +183,8 @@ P = v(:,4);
 pos = random('unid',75,[10000 2]);
 Z = (-1/P(3))*(pos*P(1:2) + P(4));
 pos3 = [pos Z];
+pos3 = pos3(find((pos3(:,2)>25).*(pos3(:,2)<76).*(pos3(:,3)>0).*(pos3(:,3)<76)),:);
+
 figure(33), clf 
 scatter3(pos3(:,3),(pos3(:,1)),pos3(:,2),25,'fill')
 view([-45 30])
